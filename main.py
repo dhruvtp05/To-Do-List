@@ -35,10 +35,25 @@ async def get_item():
     return [{"id": row[0], "title": row[1], "completed": row[2]} for row in rows]
 
 @app.get("/todos/{id}")
-async def get_item(id: int ):
+async def get_item_by_id(id: int):
     connection = get_db()
     row = connection.execute("SELECT * FROM todos WHERE id = ?", (id,)).fetchone()
     connection.close()
     if not row:
         raise HTTPException(status_code=404, detail="Todo not found")
     return [{"id": row[0], "title": row[1], "completed": row[2]}]
+
+@app.put("/todos/{id}")
+async def update_item(id: int):
+    connection = get_db()
+    connection.execute("UPDATE todos SET completed = 1 WHERE id = ?", (id,))
+    if connection.total_changes == 0:
+        connection.close()
+        raise HTTPException(status_code=404, detail="Todo not found") 
+    connection.commit()
+    connection.close()
+    return {"message": "Todo updated"}
+
+# @app.delete("/todos/{id}")
+# async def delete_item(id: int):
+#     connection = 
