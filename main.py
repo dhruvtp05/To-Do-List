@@ -54,6 +54,13 @@ async def update_item(id: int):
     connection.close()
     return {"message": "Todo updated"}
 
-# @app.delete("/todos/{id}")
-# async def delete_item(id: int):
-#     connection = 
+@app.delete("/todos/{id}")
+async def delete_item(id: int):
+    connection = get_db()
+    connection.execute("DELETE FROM todos WHERE id = ?", (id,))
+    if connection.total_changes == 0:
+        connection.close()
+        raise HTTPException(status_code=404, detail="Todo not found") 
+    connection.commit()
+    connection.close()
+    return {"message": "Todo deleted"}
